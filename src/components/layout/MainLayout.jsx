@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../auth/useAuth' // <-- 1. Import agregado
+import { useAuth } from '../../auth/useAuth'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Inicio', end: true,
@@ -14,10 +14,10 @@ const NAV_ITEMS = [
     icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
   { to: '/plantillas', label: 'Plantillas y Folios',
     icon: 'M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2' },
-  { to: '/usuarios', label: 'Usuarios y Permisos',
-    icon: 'M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-5.13a4 4 0 11-8 0 4 4 0 018 0zm6 0a3 3 0 11-6 0 3 3 0 016 0z' },
-  { to: '/auditoria', label: 'Auditoría',
-    icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
+ // { to: '/usuarios', label: 'Usuarios y Permisos',
+  //  icon: 'M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-5.13a4 4 0 11-8 0 4 4 0 018 0zm6 0a3 3 0 11-6 0 3 3 0 016 0z' },
+ // { to: '/auditoria', label: 'Auditoría',
+  //  icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
 ]
 
 function NavIcon({ path }) {
@@ -32,17 +32,18 @@ function NavIcon({ path }) {
 export default function MainLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  
-  // 2. Extraer permisos del contexto de autenticación
-  // (Ajusta "permisos" o "hasPermission" según la nomenclatura exacta que uses en useAuth)
-  const { permisos = [] } = useAuth()
 
-  // El título del header sale del mismo arreglo del menú (una sola fuente de verdad)
+  const { permisos = [], logout } = useAuth()
+
   const current = NAV_ITEMS.find((i) => (i.end ? pathname === i.to : pathname.startsWith(i.to)))
   const title = current?.label ?? 'SIVIBUM'
 
   const handleLogout = () => {
-    sessionStorage.removeItem('token')
+    if (logout) {
+      logout()
+    }
+    sessionStorage.clear()
+    localStorage.removeItem('token')
     navigate('/login', { replace: true })
   }
 
@@ -58,7 +59,6 @@ export default function MainLayout() {
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="Navegación principal">
           {NAV_ITEMS
-            // 3. Filtro para ocultar /seguimiento si no hay permiso
             //.filter((item) => item.to !== '/seguimiento' || permisos.includes('SEGUIMIENTO:CONSULTAR'))
             .map(({ to, label, icon, end }) => (
             <NavLink

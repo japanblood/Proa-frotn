@@ -12,7 +12,7 @@ const formatFecha = (f) =>
 
 const esPendiente = (s) => s?.estadoRevision?.trim().toLowerCase() === 'pendiente'
 
-function DetallePanel({ solicitud, onClose, onRevisada }) {
+function DetallePanel({ solicitud, onClose, onRevisada, onDatosActualizados }) {
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -60,7 +60,12 @@ function DetallePanel({ solicitud, onClose, onRevisada }) {
 
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-slate-800">Datos extraídos</h4>
-            <DatosExtraidos datos={solicitud.datosExtraidos} />
+            <DatosExtraidos
+              datos={solicitud.datosExtraidos}
+              solicitudId={solicitud.id}
+              editable={esPendiente(solicitud)}
+              onSaved={(actualizada) => onDatosActualizados?.(actualizada)}
+            />
           </div>
 
           {esPendiente(solicitud) && (
@@ -107,7 +112,7 @@ export default function SolicitudesPage() {
   }
 
   const handleRevisada = (actualizada) => {
-    setSelected(actualizada) // el panel muestra el nuevo estado
+    setSelected(actualizada) // el panel muestra el nuevo estado o los datos actualizados
     setReloadKey((k) => k + 1) // refresca la tabla respetando el filtro activo
   }
 
@@ -228,6 +233,7 @@ export default function SolicitudesPage() {
           solicitud={selected}
           onClose={() => setSelected(null)}
           onRevisada={handleRevisada}
+          onDatosActualizados={handleRevisada}
         />
       )}
     </section>

@@ -1,9 +1,9 @@
 import httpClient from '../../api/httpClient'
 
 // Soporta tanto VITE_API_URL=http://localhost:8080/api como .../api/v1
-const BASE = httpClient.defaults.baseURL?.replace(/\/+$/, '').endsWith('/v1')
-  ? '/oficios'
-  : '/v1/oficios'
+const IS_V1 = httpClient.defaults.baseURL?.replace(/\/+$/, '').endsWith('/v1')
+const BASE = IS_V1 ? '/oficios' : '/v1/oficios'
+const PLANTILLAS_BASE = IS_V1 ? '/plantillas' : '/v1/plantillas'
 
 export const oficiosApi = {
   dependencias: async () => {
@@ -80,7 +80,36 @@ export const oficiosApi = {
     })
     return data
   },
+
+// --- Plantillas y Folios ---
+  dependenciasPlantillas: async () => {
+    const { data } = await httpClient.get(`${PLANTILLAS_BASE}/dependencias`)
+    return data
+  },
+
+  guardarDestinatario: async (dependenciaId, payload) => {
+    const { data } = await httpClient.put(`${PLANTILLAS_BASE}/${dependenciaId}/destinatario`, payload)
+    return data
+  },
+
+  obtenerPlantilla: async (dependenciaId) => {
+    const { data } = await httpClient.get(`${PLANTILLAS_BASE}/${dependenciaId}`)
+    return data
+  },
+
+  guardarPlantilla: async (dependenciaId, payload) => {
+    const { data } = await httpClient.put(`${PLANTILLAS_BASE}/${dependenciaId}`, payload)
+    return data
+  },
+
+  estadoFolio: async (dependenciaId, anio) => {
+    const { data } = await httpClient.get(`${PLANTILLAS_BASE}/${dependenciaId}/folios`, {
+      params: anio ? { anio } : {},
+    })
+    return data
+  },
 }
+
 
 export function getErrorMessage(err, fallback = 'Ocurrió un error inesperado.') {
   const status = err.response?.status

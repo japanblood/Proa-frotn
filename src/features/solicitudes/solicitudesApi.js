@@ -28,6 +28,11 @@ export const solicitudesApi = {
     })
     return data
   },
+
+  actualizarDatosOcr: async (id, datos) => {
+    const { data } = await httpClient.put(`/solicitudes/${id}/datos-ocr`, datos)
+    return data
+  },
 }
 
 // Adapta la respuesta paginada sin depender de la forma exacta de PageResponse

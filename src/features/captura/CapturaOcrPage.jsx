@@ -4,7 +4,7 @@ import EstadoBadge from '../solicitudes/EstadoBadge'
 import RevisionForm from '../solicitudes/RevisionForm'
 import { getErrorMessage, solicitudesApi } from '../solicitudes/solicitudesApi'
 
-const MAX_MB = 10 // alinear con spring.servlet.multipart.max-file-size
+const MAX_MB = 10
 
 export default function CapturaOcrPage() {
   const [file, setFile] = useState(null)
@@ -15,7 +15,6 @@ export default function CapturaOcrPage() {
   const [revisada, setRevisada] = useState(null)
   const [inputKey, setInputKey] = useState(0)
 
-  // Vista previa de la imagen cargada (se libera al cambiar o desmontar)
   useEffect(() => {
     if (!file) {
       setPreviewUrl(null)
@@ -181,7 +180,21 @@ export default function CapturaOcrPage() {
 
               <div className="space-y-2">
                 <h4 className="text-sm font-semibold text-slate-800">Datos extraídos</h4>
-                <DatosExtraidos datos={result.datosExtraidos} />
+                <DatosExtraidos
+                  datos={result.datosExtraidos}
+                  solicitudId={result.solicitudId}
+                  editable={!revisada}
+                  onSaved={(actualizada, payload) =>
+                    setResult((prev) => ({
+                      ...prev,
+                      establecimiento: actualizada?.establecimiento ?? prev.establecimiento,
+                      datosExtraidos: actualizada?.datosExtraidos ?? {
+                        ...prev.datosExtraidos,
+                        ...payload,
+                      },
+                    }))
+                  }
+                />
               </div>
 
               {revisada ? (
